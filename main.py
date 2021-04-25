@@ -225,13 +225,12 @@ def product_info(idis):
         try:
             email = db_sess.query(User).filter(User.id == result.user_id).first().email
             addr_to   = email  
-            addr_from = 'pyprojectflask@mail.ru'                 # Получатель
-            password  = "zU&auaPiUY32"                                  # Пароль
-
-            msg = MIMEMultipart()                               # Создаем сообщение
-            msg['From']    = addr_from                          # Адресат
-            msg['To']      = addr_to                            # Получатель
-            msg['Subject'] = 'В вашем товаре заинтересовались😎'                   # Тема сообщения
+            addr_from = 'pyprojectflask@mail.ru'
+            password  = "zU&auaPiUY32"
+            msg = MIMEMultipart()
+            msg['From']    = addr_from
+            msg['To']      = addr_to
+            msg['Subject'] = 'В вашем товаре заинтересовались😎'
 
             html = f"""\
                     <html>
@@ -245,18 +244,16 @@ def product_info(idis):
                     </body>
                     </html>
                     """
-            msg.attach(MIMEText(html, 'html', 'utf-8'))                 # Добавляем в сообщение текст
-
-            server = smtplib.SMTP('smtp.mail.ru', 587)           # Создаем объект SMTP
-            # server.set_debuglevel(True)                         # Включаем режим отладки - если отчет не нужен, строку можно закомментировать
-            server.starttls()                                   # Начинаем шифрованный обмен по TLS
-            server.login(addr_from, password)                   # Получаем доступ
-            server.send_message(msg)                            # Отправляем сообщение
+            msg.attach(MIMEText(html, 'html', 'utf-8'))
+            server = smtplib.SMTP('smtp.mail.ru', 587)
+            server.starttls()
+            server.login(addr_from, password)
+            server.send_message(msg)
             server.quit()
-            return render_template('news.html', file=count - 1, result=result, data=data, style_of_card=choice(style), message='Удачно')
+            return render_template('news.html', file=count, result=result, data=data, style_of_card=choice(style), message='Удачно')
         except Exception as e:
             print(e)
-            return render_template('news.html', file=count - 1, result=result, data=data, style_of_card=choice(style), message='Неудалось отправить сообщение')
+            return render_template('news.html', file=count, result=result, data=data, style_of_card=choice(style), message='Неудалось отправить сообщение')
 
 
 
