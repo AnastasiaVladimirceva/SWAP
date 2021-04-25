@@ -2,7 +2,7 @@
 
 {% block content %}
 <h1>Добавление товара</h1>
-<form action="" method="post">
+<form action="" method="post" enctype="multipart/form-data">
     {{ form.hidden_tag() }}
     <p>
         {{ form.title.label }}<br>
@@ -22,10 +22,19 @@
     </p>
     {% endfor %}
     </p>
+    <p>
+        {{ form.connection.label }}<br>
+        {{ form.connection(class="form-control") }}<br>
+        {% for error in form.connection.errors %}
+    <p connection="alert alert-danger" role="alert">
+        {{ error }}
+    </p>
+    {% endfor %}
+    </p>
     <div>
         <div class="form-group">
             <label for="classSelect">Выберете категорию товара</label>
-            <select class="form-control" id="classSelect">
+            <select class="form-control" id="classSelect" name="category">
                 <option>Электроника</option>
                 <option>Одежда, обувь и аксессуары</option>
                 <option>Дом и сад</option>
@@ -38,10 +47,10 @@
                 <option>Музыка и видео</option>
             </select>
         </div>
-        <div class="form-group">
-            <label for="photo">Приложите фотографию</label>
-            <input type="file" class="form-control-file" id="photo" name="file">
-        </div>
+            <div class="form-group">
+                <label for="photo">Приложите фотографию</label>
+                <input type="file" class="form-control-file" id="photo" name="file">
+            </div>
     </div>
     <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
     {{message}}

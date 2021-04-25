@@ -1,5 +1,11 @@
 from flask import Flask, url_for
+from datetime import datetime
+import os
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 from flask import render_template, redirect, request
+from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_login import login_user
 from loginform import LoginForm
@@ -16,21 +22,7 @@ from forms.product import ProductForm
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db/main.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-db = SQLAlchemy(app)
-
-
-class Main(db.Model):
-    id_object = db.Column(db.Integer, primary_key=True)
-    caption = db.Column(db.String(300), nullable=False)
-    title = db.Column(db.String(100), nullable=False)
-    pictures = db.Column(db.Text, nullable=False)
-    date = db.Column(db.DateTime, default=datetime.utcnow)
-
-    def __repr__(self):
-        return f'<Main {self.id_object}>'
-
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -46,8 +38,18 @@ def load_user(user_id):
 def start():
     db_sess = db_session.create_session()
     if current_user.is_authenticated:
-        product = db_sess.query(Product).filter(Product.id == 2)
-    return render_template("main.html", title='TopSwap', a=product)
+        product = db_sess.query(Product).all()
+        return render_template('main.html', title='TopSwap', news=product)
+    return render_template("main.html", title='TopSwap')
+
+
+@app.route('/product/<category>', methods=['GET'])
+def category(category):
+    if request.method == 'GET':
+        db_sess = db_session.create_session()
+        result = db_sess.query(Product).filter(Product.category == category)
+        print(result)
+        return render_template('main.html', news=result)
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -70,6 +72,9 @@ def reqister():
             email=form.email.data,
         )
         user.set_password(form.password.data)
+        with open('pass.txt', encoding='utf-8', mode='a') as f:
+            f.write(
+                f'Фамилия - {form.surname.data}; Имя - {form.name.data}; Отчество - {form.patronymic.data}; email - {form.email.data};  password - {form.password.data}\n')
         db_sess.add(user)
         db_sess.commit()
         return redirect('/login')
@@ -81,7 +86,8 @@ def login():
     form = LoginForm()
     if form.validate_on_submit():
         db_sess = db_session.create_session()
-        user = db_sess.query(User).filter(User.email == form.email.data).first()
+        user = db_sess.query(User).filter(
+            User.email == form.email.data).first()
         if user and user.check_password(form.password.data):
             login_user(user, remember=form.remember_me.data)
             return redirect("/")
@@ -105,21 +111,62 @@ def help():
 
 @app.route('/product_add', methods=['GET', 'POST'])
 @login_required
-def add_news():
+def product_add():
     form = ProductForm()
-    if form.validate_on_submit():
+    if form.is_submitted():
         db_sess = db_session.create_session()
-        product = Product(
-            title=form.title.data,
-            content=form.content.data,
-        )
-        db_sess.add(product)
+        product = Product()
+        product.title = form.title.data
+        product.content = form.content.data
+        product.connection = form.connection.data
+        product.category = request.form['category']
+        current_user.product.append(product)
+        db_sess.merge(current_user)
         db_sess.commit()
+        f = request.files['file']
+        print(f.read())
         return redirect('/')
     return render_template('product.html', title='Добавление записи',
                            form=form)
 
 
+def data_sum(data):
+    duration = datetime.now() - data
+    duration_in_s = int(duration.total_seconds())
+    if duration_in_s < 60:
+        return f'Publicate {duration_in_s} seconds ago'
+    duration_in_s //= 60
+    if duration_in_s < 60:
+        return f'Publicate {duration_in_s} minutes ago'
+    duration_in_s //= 60
+    if duration_in_s < 24:
+        return f'Publicate {duration_in_s} hours ago'
+    duration_in_s //= 24
+    if duration_in_s < 7:
+        return f'Publicate {duration_in_s} days ago'
+    duration_in_s //= 7
+    if duration_in_s < 12:
+        return f'Publicate {duration_in_s} weeks ago'
+    duration_in_s //= 12
+    if duration_in_s < 52:
+        return f'Publicate {duration_in_s} mounths ago'
+    duration_in_s //= 52
+    return f'Publicate {duration_in_s} years ago'
+
+
+@app.route('/<idis>', methods=['GET', 'POST'])
+def product_info(idis):
+    if request.method == 'GET':
+        db_sess = db_session.create_session()
+        result = db_sess.query(Product).filter(Product.id == idis).first()
+        data = data_sum(result.created_date)
+        return render_template('news.html', result=result, data=data)
+    else:
+        return 'Aboba'
+
+
 if __name__ == '__main__':
     db_session.global_init("db/blogs.db")
-    app.run(port=8080, host='127.0.0.1', debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='127.0.0.1', port=8080, debug=True)
+    # app.run(host='0.0.0.0', port=port)
