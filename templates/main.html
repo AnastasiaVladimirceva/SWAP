@@ -30,6 +30,9 @@
                         <p class="card-text">{{ item.content }}</p>
                         {% if current_user.is_authenticated %}
                             <a href="/product/{{item.id}}" class="btn btn-primary">Перейти</a>
+                            {% if current_user.id == item.user_id %}
+                                <a href="/product_edit/{{item.id}}" class="btn btn-outline-light">Изменить</a>
+                            {% endif %}
                         {% endif %}
                     </div>
                 </div>

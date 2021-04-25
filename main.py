@@ -149,46 +149,52 @@ def product():
         return render_template('index.html', news=result)
 
 
-# @app.route('/product/<int:id>', methods=['GET', 'POST'])
-# @login_required
-# def edit_product(id):
-#     form = ProductForm()
-#     if request.method == "GET":
-#         db_sess = db_session.create_session()
-#         product = db_sess.query(Product).filter(Product.id == id,
-#                                                 Product.user == current_user
-#                                                 ).first()
-#         if product:
-#             form.title.data = product.title
-#             form.content.data = product.content
-#             form.connection.data = product.connection
-#             form.category.data = product.category
-#             form.photo.data = product.photo
-#         else:
-#             abort(404)
-#     if form.validate_on_submit():
-#         db_sess = db_session.create_session()
-#         product = db_sess.query(Product).filter(Product.id == id,
-#                                                 Product.user == current_user
-#                                                 ).first()
-#         if product:
-#             product.title = form.title.data
-#             product.content = form.content.data
-#             product.connection = form.connection.data
-#             product.category = request.form['category']
-#             f = request.files['file']
-#             f = f.read()
-#             with open(f'static/img/file{number}.png', 'wb') as photo:
-#                 photo.write(f)
-#             product.photo = str.encode(f'static/img/file{number}.png')
-#             db_sess.commit()
-#             return redirect('/')
-#         else:
-#             abort(404)
-#     return render_template('product.html',
-#                            title='Редактирование новости',
-#                            form=form
-#                            )
+@app.route('/product_edit/<int:idi>', methods=['GET', 'POST'])
+def edit_product(idi):
+    form = ProductForm()
+    if request.method == "GET":
+        db_sess = db_session.create_session()
+        product = db_sess.query(Product).filter(Product.id == idi,
+                                                Product.user == current_user
+                                                ).first()
+        if product:
+            form.title.data = product.title
+            form.content.data = product.content
+            form.connection.data = product.connection
+            form.category.data = product.category
+            form.photo.data = product.photo
+        else:
+            abort(404)
+    if request.method == "POST":
+        db_sess = db_session.create_session()
+        product = db_sess.query(Product).filter(Product.id == idi,
+                                                Product.user == current_user
+                                                ).first()
+        if product:
+            product.title = form.title.data
+            product.content = form.content.data
+            product.connection = form.connection.data
+            if not form.connection.data.isdigit() and str(form.connection.data) != 11 and not str(form.connection.data).startswith('8'):
+                return render_template('product.html', title='Редактирование новости',
+                            form=form, message='Неверный формат ввода телефона')
+            product.category = request.form['category']
+            f = request.files['file']
+            if not f.filename.split('.')[1] in ['png', 'jpg', 'bmp', 'ico', 'jpeg', 'gif']:
+                return render_template('product.html', title='Редактирование новости',
+                            form=form, message='Неверный формат картинки')
+            f = f.read()
+            with open(f'static/img/file{idi - 1}.jpg', 'wb') as photo:
+                photo.write(f)
+            product.photo = str.encode(f'static/img/file{idi - 1}.jpg')
+            db_sess.commit()
+            return redirect('/')
+        else:
+            abort(404)
+    print('aboba')
+    return render_template('product.html',
+                           title='Редактирование новости',
+                           form=form
+                           )
 
 
 def data_sum(data):
@@ -262,5 +268,5 @@ def product_info(idis):
 if __name__ == '__main__':
     db_session.global_init("db/blogs.db")
     port = int(os.environ.get("PORT", 5000))
-    # app.run(host='127.0.0.1', port=8080, debug=True)
-    app.run(host='0.0.0.0', port=port)
+    app.run(host='127.0.0.1', port=8080, debug=True)
+    # app.run(host='0.0.0.0', port=port)

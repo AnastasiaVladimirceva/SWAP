@@ -29,6 +29,9 @@
                         <h5 class="card-title">{{ item.title }}</h5>
                         <p class="card-text">{{ item.content }}</p>
                         <a href="/product/{{item.id}}" class="btn btn-primary">Перейти</a>
+                        {% if current_user.id == item.user_id %}
+                                <a href="/product_edit/{{item.id}}" class="btn btn-outline-light">Изменить</a>
+                        {% endif %}
                     </div>
                 </div>
                 {% endfor %}
