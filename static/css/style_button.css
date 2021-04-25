@@ -1,0 +1,38 @@
+#developers {
+    width: 300px;
+    border-radius: 30px;
+}
+html {
+    height: 100%;
+}
+body {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+#content {
+    flex: 1 0 auto;
+}
+#pomeha {
+    width: 1915px;
+}
+.mb-1 {
+    width: max-content;
+    background: #78e08f;
+    border-radius: 5px;
+    animation: background 3s infinite alternate;
+}
+footer {
+    padding: 50px;
+}
+.mb-1:hover {
+    width:fit-content;
+    background-color: rgb(255, 0, 242);
+    transition: all ease-in-out 0.5s;
+    color: red;
+}
+@keyframes background {
+    50% {
+      background: #f8c291;
+    }
+  }

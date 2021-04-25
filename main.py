@@ -2,6 +2,7 @@ from flask import Flask, url_for
 from datetime import datetime
 import os
 import smtplib
+from random import choice
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from flask import render_template, redirect, request
@@ -223,7 +224,8 @@ def product_info(idis):
         db_sess = db_session.create_session()
         result = db_sess.query(Product).filter(Product.id == idis).first()
         data = data_sum(result.created_date)
-        return render_template('news.html', result=result, data=data)
+        style = [('bg-primary', 'text-white'), ('bg-success', 'text-white'), ('bg-warning', 'text-dark')]
+        return render_template('news.html', result=result, data=data, style_of_card=choice(style))
     else:
         return 'Aboba'
 

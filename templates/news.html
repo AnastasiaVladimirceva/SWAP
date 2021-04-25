@@ -2,7 +2,7 @@
 
 {% block content %}
 
-<div class="card text-center">
+<div class="card text-center {{style_of_card[0]}} {{style_of_card[1]}}">
     <div class="card-header">
       {{result.title}}
     </div>
@@ -10,10 +10,10 @@
       <h5 class="card-title">{{result.category}}</h5>
       <p class="card-text">{{result.content}}</p>
       <form method="POST">
-          <button type="submit" class="btn btn-primary">связаться с владельцем</button>
+          <button type="submit" class="btn btn-light">связаться с владельцем</button>
       </form>
     </div>
-    <div class="card-footer text-muted">
+    <div class="card-footer {{style_of_card[1]}}">
       {{data}}
     </div>
   </div>
