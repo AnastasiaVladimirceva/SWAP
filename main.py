@@ -122,13 +122,16 @@ def product_add():
         product.connection = form.connection.data
         if not form.connection.data.isdigit() and str(form.connection.data) != 11 and not str(form.connection.data).startswith('8'):
             return render_template('product.html', title='Добавление записи',
-                           form=form, message='Неверный форомат ввода телефона')
+                           form=form, message='Неверный формат ввода телефона')
         product.category = request.form['category']
         f = request.files['file']
+        if not f.filename.split('.')[1] in ['png', 'jpg', 'bmp', 'ico', 'jpeg', 'gif']:
+            return render_template('product.html', title='Добавление записи',
+                           form=form, message='Неверный формат картинки')
         f = f.read()
-        with open(f'static/img/file{count}.png', 'wb') as photo:
+        with open(f'static/img/file{count}.jpg', 'wb') as photo:
             photo.write(f)
-        product.photo = str.encode(f'static/img/file{count}.png')
+        product.photo = str.encode(f'static/img/file{count}.jpg')
         current_user.product.append(product)
         db_sess.merge(current_user)
         db_sess.commit()
@@ -216,11 +219,10 @@ def data_sum(data):
 def product_info(idis):
     db_sess = db_session.create_session()
     result = db_sess.query(Product).filter(Product.id == idis).first()
-    count = len(db_sess.query(Product).all())
     data = data_sum(result.created_date)
     style = [('bg-primary', 'text-white'), ('bg-success', 'text-white'), ('bg-warning', 'text-dark')]
     if request.method == 'GET':
-        return render_template('news.html', file=count - 1, result=result, data=data, style_of_card=choice(style))
+        return render_template('news.html', file=int(idis) - 1, result=result, data=data, style_of_card=choice(style))
     else:
         try:
             email = db_sess.query(User).filter(User.id == result.user_id).first().email
@@ -237,7 +239,7 @@ def product_info(idis):
                     <head></head>
                     <body>
                         <p>
-                        Зайдите на сайт TopSwap в вашем товаре заинетресован: {current_user.surname} {current_user.name}
+                        Зайдите на сайт TopSwap, в вашем товаре заинтересован: {current_user.surname} {current_user.name}
                         </p><br>
                         <p>Почта пользователя: {current_user.email}</p>
                         <img src='https://www.meme-arsenal.com/memes/e7955044a296301f97a33e2b33127787.jpg' alt='сорян, чёто гуглёныш подвёл'>
@@ -250,10 +252,10 @@ def product_info(idis):
             server.login(addr_from, password)
             server.send_message(msg)
             server.quit()
-            return render_template('news.html', file=count, result=result, data=data, style_of_card=choice(style), message='Удачно')
+            return render_template('news.html', file=int(idis) - 1, result=result, data=data, style_of_card=choice(style), message='Удачно')
         except Exception as e:
             print(e)
-            return render_template('news.html', file=count, result=result, data=data, style_of_card=choice(style), message='Неудалось отправить сообщение')
+            return render_template('news.html', file=int(idis) - 1, result=result, data=data, style_of_card=choice(style), message='Неудалось отправить сообщение')
 
 
 
