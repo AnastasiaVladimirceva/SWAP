@@ -5,6 +5,7 @@ import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from flask import render_template, redirect, request
+from flask_restful import abort
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_login import login_user
@@ -43,7 +44,7 @@ def start():
     return render_template("main.html", title='TopSwap')
 
 
-@app.route('/product/<category>', methods=['GET'])
+@app.route('/<category>', methods=['GET'])
 def category(category):
     if request.method == 'GET':
         db_sess = db_session.create_session()
@@ -120,14 +121,76 @@ def product_add():
         product.content = form.content.data
         product.connection = form.connection.data
         product.category = request.form['category']
+        with open('main.txt', 'r') as main:
+            a = int(main.read())
+            b = a + 1
+            main.close()
+        with open('main.txt', 'w') as main:
+            main.write(str(b))
+            main.close()
+        f = request.files['file']
+        f = f.read()
+        with open(f'static/img/file{a}.png', 'wb') as photo:
+            photo.write(f)
+            photo.close()
+        product.photo = str.encode(f'static/img/file{a}.png')
         current_user.product.append(product)
         db_sess.merge(current_user)
         db_sess.commit()
-        f = request.files['file']
-        print(f.read())
         return redirect('/')
     return render_template('product.html', title='Добавление записи',
                            form=form)
+
+
+@app.route('/product', methods=['GET', 'POST'])
+@login_required
+def product():
+    if request.method == 'GET':
+        db_sess = db_session.create_session()
+        result = db_sess.query(Product).filter(Product.user == current_user)
+        return render_template('index.html', news=result)
+
+
+# @app.route('/product/<int:id>', methods=['GET', 'POST'])
+# @login_required
+# def edit_product(id):
+#     form = ProductForm()
+#     if request.method == "GET":
+#         db_sess = db_session.create_session()
+#         product = db_sess.query(Product).filter(Product.id == id,
+#                                                 Product.user == current_user
+#                                                 ).first()
+#         if product:
+#             form.title.data = product.title
+#             form.content.data = product.content
+#             form.connection.data = product.connection
+#             form.category.data = product.category
+#             form.photo.data = product.photo
+#         else:
+#             abort(404)
+#     if form.validate_on_submit():
+#         db_sess = db_session.create_session()
+#         product = db_sess.query(Product).filter(Product.id == id,
+#                                                 Product.user == current_user
+#                                                 ).first()
+#         if product:
+#             product.title = form.title.data
+#             product.content = form.content.data
+#             product.connection = form.connection.data
+#             product.category = request.form['category']
+#             f = request.files['file']
+#             f = f.read()
+#             with open(f'static/img/file{number}.png', 'wb') as photo:
+#                 photo.write(f)
+#             product.photo = str.encode(f'static/img/file{number}.png')
+#             db_sess.commit()
+#             return redirect('/')
+#         else:
+#             abort(404)
+#     return render_template('product.html',
+#                            title='Редактирование новости',
+#                            form=form
+#                            )
 
 
 def data_sum(data):
@@ -154,7 +217,7 @@ def data_sum(data):
     return f'Publicate {duration_in_s} years ago'
 
 
-@app.route('/<idis>', methods=['GET', 'POST'])
+@app.route('/product/<idis>', methods=['GET', 'POST'])
 def product_info(idis):
     if request.method == 'GET':
         db_sess = db_session.create_session()

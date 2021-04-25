@@ -28,6 +28,7 @@
             {% if current_user.is_authenticated %}
                 <label class="nav-item"><a href="/logout" class="nav-link active" style="background-color: #FF8400; border-radius: 15px;">{{ current_user.name }}</a></label>
                 <a class="btn btn-outline-warning" href="/product_add" role="button">Create new product</a>
+                <a class="nav-link px-2 text-warning" href="/product">My product</a>
             {% else %}
                 <div>
                     <a class="btn btn-outline-warning" href="/login" role="button">Login</a>

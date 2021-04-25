@@ -1,25 +1,40 @@
 {% extends "base.html" %}
 
 {% block content %}
-{% for item in news%}
-<div class="col-md6 border rounded">
-    <h2>{{item.title}}</h2>
-    <div>
-        {{item.content}}
+
+<div class="row">
+    <div class="col-md-3">
+        <div class="list-group">
+            <a href="/Электроника" class="list-group-item">Электроника</a>
+            <a href="/Одежда, обувь и аксессуары" class="list-group-item">Одежда, обувь и аксессуары</a>
+            <a href="/Дом и сад" class="list-group-item">Дом и сад</a>
+            <a href="/Бытовая техника" class="list-group-item">Бытовая техника</a>
+            <a href="/Спорт и отдых" class="list-group-item">Спорт и отдых</a>
+            <a href="/Строительство и ремонт" class="list-group-item">Строительство и ремонт</a>
+            <a href="/Книги" class="list-group-item">Книги</a>
+            <a href="/Автотовары" class="list-group-item">Автотовары</a>
+            <a href="/Мебель" class="list-group-item">Мебель</a>
+            <a href="/Музыка и видео" class="list-group-item">Музыка и видео</a>
+        </div>
     </div>
-    <div>
-        Автор - {{item.user.name}}, Дата написания - {{item.created_date}}
+    <div class="col-md-8 products">
+        <div class="container">
+            <div class="row row-cols-3">
+                {% for item in news %}
+                <div class="card bg-dark text-white" style="width: 18rem; margin: 15px">
+                    {%if item.photo != None:%}
+                    <img src="{{item.photo.decode()}}" class="card-img-top" alt="Ничего страшного)))">
+                    {%endif%}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ item.title }}</h5>
+                        <p class="card-text">{{ item.content }}</p>
+                        <a href="/product/{{item.id}}" class="btn btn-primary">Перейти</a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
     </div>
-    {% if current_user.is_authenticated and current_user == item.user %}
-    <div>
-        <a href="/news/{{ item.id }}" class="btn btn-warning">
-            Изменить
-        </a>
-        <a href="/news_delete/{{ item.id }}" class="btn btn-danger">
-            Удалить
-        </a>
-    </div>
-{% endif %}
+
 </div>
-{% endfor %}
 {% endblock %}
