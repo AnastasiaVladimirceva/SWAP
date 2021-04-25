@@ -22,7 +22,7 @@
             <div class="row row-cols-3">
                 {% for item in news %}
                 <div class="card bg-dark text-white" style="width: 18rem; margin: 15px">
-                    {%if item.photo != None:%}
+                    {%if item.photo != None%}
                     <img src="{{item.photo.decode()}}" class="card-img-top" alt="Ничего страшного)))">
                     {%endif%}
                     <div class="card-body">

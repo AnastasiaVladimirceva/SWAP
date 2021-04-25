@@ -7,11 +7,14 @@
       {{result.title}}
     </div>
     <div class="card-body">
+      <img src="/static/img/file{{file}}.png" class="card-img-top" alt="..." style="height: fit-content; width: fit-content;">
       <h5 class="card-title">{{result.category}}</h5>
-      <p class="card-text">{{result.content}}</p>
+      <blockquote class="card-text">{{result.content}}</blockquote>
       <form method="POST">
-          <button type="submit" class="btn btn-light">связаться с владельцем</button>
+          <button type="submit" class="btn btn-light">Отправить письмо на почту</button>
       </form>
+      <p class="card-text">Или свяжитесь по номеру {{result.connection}}</p>
+      <p class="card-text">{{message}}</p>
     </div>
     <div class="card-footer {{style_of_card[1]}}">
       {{data}}

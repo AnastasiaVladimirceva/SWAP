@@ -39,10 +39,8 @@ def load_user(user_id):
 @app.route('/')
 def start():
     db_sess = db_session.create_session()
-    if current_user.is_authenticated:
-        product = db_sess.query(Product).all()
-        return render_template('main.html', title='TopSwap', news=product)
-    return render_template("main.html", title='TopSwap')
+    product = db_sess.query(Product).all()
+    return render_template('main.html', title='TopSwap', news=product)
 
 
 @app.route('/<category>', methods=['GET'])
@@ -117,24 +115,20 @@ def product_add():
     form = ProductForm()
     if form.is_submitted():
         db_sess = db_session.create_session()
+        count = len(db_sess.query(Product).all())
         product = Product()
         product.title = form.title.data
         product.content = form.content.data
         product.connection = form.connection.data
+        if not form.connection.data.isdigit() and str(form.connection.data) != 11 and not str(form.connection.data).startswith('8'):
+            return render_template('product.html', title='Добавление записи',
+                           form=form, message='Неверный форомат ввода телефона')
         product.category = request.form['category']
-        with open('main.txt', 'r') as main:
-            a = int(main.read())
-            b = a + 1
-            main.close()
-        with open('main.txt', 'w') as main:
-            main.write(str(b))
-            main.close()
         f = request.files['file']
         f = f.read()
-        with open(f'static/img/file{a}.png', 'wb') as photo:
+        with open(f'static/img/file{count}.png', 'wb') as photo:
             photo.write(f)
-            photo.close()
-        product.photo = str.encode(f'static/img/file{a}.png')
+        product.photo = str.encode(f'static/img/file{count}.png')
         current_user.product.append(product)
         db_sess.merge(current_user)
         db_sess.commit()
@@ -220,14 +214,50 @@ def data_sum(data):
 
 @app.route('/product/<idis>', methods=['GET', 'POST'])
 def product_info(idis):
+    db_sess = db_session.create_session()
+    result = db_sess.query(Product).filter(Product.id == idis).first()
+    count = len(db_sess.query(Product).all())
+    data = data_sum(result.created_date)
+    style = [('bg-primary', 'text-white'), ('bg-success', 'text-white'), ('bg-warning', 'text-dark')]
     if request.method == 'GET':
-        db_sess = db_session.create_session()
-        result = db_sess.query(Product).filter(Product.id == idis).first()
-        data = data_sum(result.created_date)
-        style = [('bg-primary', 'text-white'), ('bg-success', 'text-white'), ('bg-warning', 'text-dark')]
-        return render_template('news.html', result=result, data=data, style_of_card=choice(style))
+        return render_template('news.html', file=count - 1, result=result, data=data, style_of_card=choice(style))
     else:
-        return 'Aboba'
+        try:
+            email = db_sess.query(User).filter(User.id == result.user_id).first().email
+            addr_to   = email  
+            addr_from = 'pyprojectflask@mail.ru'                 # Получатель
+            password  = "zU&auaPiUY32"                                  # Пароль
+
+            msg = MIMEMultipart()                               # Создаем сообщение
+            msg['From']    = addr_from                          # Адресат
+            msg['To']      = addr_to                            # Получатель
+            msg['Subject'] = 'В вашем товаре заинтересовались😎'                   # Тема сообщения
+
+            html = f"""\
+                    <html>
+                    <head></head>
+                    <body>
+                        <p>
+                        Зайдите на сайт TopSwap в вашем товаре заинетресован: {current_user.surname} {current_user.name}
+                        </p><br>
+                        <p>Почта пользователя: {current_user.email}</p>
+                        <img src='https://www.meme-arsenal.com/memes/e7955044a296301f97a33e2b33127787.jpg' alt='сорян, чёто гуглёныш подвёл'>
+                    </body>
+                    </html>
+                    """
+            msg.attach(MIMEText(html, 'html', 'utf-8'))                 # Добавляем в сообщение текст
+
+            server = smtplib.SMTP('smtp.mail.ru', 587)           # Создаем объект SMTP
+            # server.set_debuglevel(True)                         # Включаем режим отладки - если отчет не нужен, строку можно закомментировать
+            server.starttls()                                   # Начинаем шифрованный обмен по TLS
+            server.login(addr_from, password)                   # Получаем доступ
+            server.send_message(msg)                            # Отправляем сообщение
+            server.quit()
+            return render_template('news.html', file=count - 1, result=result, data=data, style_of_card=choice(style), message='Удачно')
+        except Exception as e:
+            print(e)
+            return render_template('news.html', file=count - 1, result=result, data=data, style_of_card=choice(style), message='Неудалось отправить сообщение')
+
 
 
 if __name__ == '__main__':

@@ -28,7 +28,9 @@
                     <div class="card-body">
                         <h5 class="card-title">{{ item.title }}</h5>
                         <p class="card-text">{{ item.content }}</p>
-                        <a href="/product/{{item.id}}" class="btn btn-primary">Перейти</a>
+                        {% if current_user.is_authenticated %}
+                            <a href="/product/{{item.id}}" class="btn btn-primary">Перейти</a>
+                        {% endif %}
                     </div>
                 </div>
                 {% endfor %}
