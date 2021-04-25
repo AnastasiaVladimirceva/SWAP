@@ -53,6 +53,9 @@
             </div>
     </div>
     <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
+    {% if delete %}
+        <button type="submit" name='delete' class="btn btn-danger">Удалить</button>
+    {% endif %}
     {{message}}
 </form>
 {% endblock %}

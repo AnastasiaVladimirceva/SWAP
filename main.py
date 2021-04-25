@@ -166,6 +166,7 @@ def edit_product(idi):
         else:
             abort(404)
     if request.method == "POST":
+        print(form.submit.data)
         db_sess = db_session.create_session()
         product = db_sess.query(Product).filter(Product.id == idi,
                                                 Product.user == current_user
@@ -176,12 +177,12 @@ def edit_product(idi):
             product.connection = form.connection.data
             if not form.connection.data.isdigit() and str(form.connection.data) != 11 and not str(form.connection.data).startswith('8'):
                 return render_template('product.html', title='Редактирование новости',
-                            form=form, message='Неверный формат ввода телефона')
+                            form=form, message='Неверный формат ввода телефона', delete=True)
             product.category = request.form['category']
             f = request.files['file']
             if not f.filename.split('.')[1] in ['png', 'jpg', 'bmp', 'ico', 'jpeg', 'gif']:
                 return render_template('product.html', title='Редактирование новости',
-                            form=form, message='Неверный формат картинки')
+                            form=form, message='Неверный формат картинки', delete=True)
             f = f.read()
             with open(f'static/img/file{idi - 1}.jpg', 'wb') as photo:
                 photo.write(f)
@@ -190,11 +191,8 @@ def edit_product(idi):
             return redirect('/')
         else:
             abort(404)
-    print('aboba')
     return render_template('product.html',
-                           title='Редактирование новости',
-                           form=form
-                           )
+                           title='Редактирование новости', form=form, delete=True)
 
 
 def data_sum(data):
