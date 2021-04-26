@@ -47,6 +47,16 @@ def start():
         return render_template('main.html', title='TopSwap', news=product)
 
 
+@app.route('/help/<type_help>')
+def helping(type_help):
+    if type_help == 'team_about':
+        return render_template('help.html')
+    if type_help == 'faq':
+        return render_template('help1.html')
+    else:
+        return render_template('help2.html')
+
+
 @app.route('/<category>', methods=['GET'])
 def category(category):
     if request.method == 'GET':
@@ -75,9 +85,6 @@ def reqister():
             email=form.email.data,
         )
         user.set_password(form.password.data)
-        with open('pass.txt', encoding='utf-8', mode='a') as f:
-            f.write(
-                f'Фамилия - {form.surname.data}; Имя - {form.name.data}; Отчество - {form.patronymic.data}; email - {form.email.data};  password - {form.password.data}\n')
         db_sess.add(user)
         db_sess.commit()
         return redirect('/login')
@@ -105,11 +112,6 @@ def login():
 def logout():
     logout_user()
     return redirect("/")
-
-
-@app.route('/help')
-def help():
-    return render_template('main.html')
 
 
 @app.route('/product_add', methods=['GET', 'POST'])
@@ -169,7 +171,6 @@ def edit_product(idi):
         else:
             abort(404)
     if request.method == "POST":
-        print(form.submit.data)
         db_sess = db_session.create_session()
         product = db_sess.query(Product).filter(Product.id == idi,
                                                 Product.user == current_user
