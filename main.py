@@ -47,8 +47,7 @@ def start():
 def category(category):
     if request.method == 'GET':
         db_sess = db_session.create_session()
-        result = db_sess.query(Product).filter(Product.category == category)
-        print(result)
+        result = db_sess.query(Product).filter(Product.category == category.replace('%20', ' ')).all()
         return render_template('main.html', news=result)
 
 
@@ -269,7 +268,6 @@ def product_info(idis):
         except Exception as e:
             print(e)
             return render_template('news.html', file=int(idis) - 1, result=result, data=data, style_of_card=choice(style), message='Неудалось отправить сообщение')
-
 
 
 if __name__ == '__main__':
