@@ -190,12 +190,14 @@ def edit_product(idi):
                 product.category = request.form['category']
                 f = request.files['file']
                 if not f.filename:
-                    return render_template('product.html', title='Редактирование новости',
-                                form=form, message='Выберите картинку из своего устройства', delete=True)
-                if not f.filename.split('.')[1] in ['png', 'jpg', 'bmp', 'ico', 'jpeg', 'gif']:
+                    f = product.photo
+                    with open(f.decode('utf-8'), mode='rb') as fi:
+                        f = fi.read()
+                elif not f.filename.split('.')[1] in ['png', 'jpg', 'bmp', 'ico', 'jpeg', 'gif']:
                     return render_template('product.html', title='Редактирование новости',
                                 form=form, message='Неверный формат картинки', delete=True)
-                f = f.read()
+                else:
+                    f = f.read()
                 with open(f'static/img/file{idi - 1}.jpg', 'wb') as photo:
                     photo.write(f)
                 product.photo = str.encode(f'static/img/file{idi - 1}.jpg')
