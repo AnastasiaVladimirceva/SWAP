@@ -171,26 +171,35 @@ def edit_product(idi):
         product = db_sess.query(Product).filter(Product.id == idi,
                                                 Product.user == current_user
                                                 ).first()
-        if product:
-            product.title = form.title.data
-            product.content = form.content.data
-            product.connection = form.connection.data
-            if not form.connection.data.isdigit() and str(form.connection.data) != 11 and not str(form.connection.data).startswith('8'):
-                return render_template('product.html', title='Редактирование новости',
-                            form=form, message='Неверный формат ввода телефона', delete=True)
-            product.category = request.form['category']
-            f = request.files['file']
-            if not f.filename.split('.')[1] in ['png', 'jpg', 'bmp', 'ico', 'jpeg', 'gif']:
-                return render_template('product.html', title='Редактирование новости',
-                            form=form, message='Неверный формат картинки', delete=True)
-            f = f.read()
-            with open(f'static/img/file{idi - 1}.jpg', 'wb') as photo:
-                photo.write(f)
-            product.photo = str.encode(f'static/img/file{idi - 1}.jpg')
-            db_sess.commit()
-            return redirect('/')
+        if form.submit.data:
+            if product:
+                product.title = form.title.data
+                product.content = form.content.data
+                product.connection = form.connection.data
+                if not form.connection.data.isdigit() and str(form.connection.data) != 11 and not str(form.connection.data).startswith('8'):
+                    return render_template('product.html', title='Редактирование новости',
+                                form=form, message='Неверный формат ввода телефона', delete=True)
+                product.category = request.form['category']
+                f = request.files['file']
+                if not f.filename:
+                    return render_template('product.html', title='Редактирование новости',
+                                form=form, message='Выберите картинку из своего устройства', delete=True)
+                if not f.filename.split('.')[1] in ['png', 'jpg', 'bmp', 'ico', 'jpeg', 'gif']:
+                    return render_template('product.html', title='Редактирование новости',
+                                form=form, message='Неверный формат картинки', delete=True)
+                f = f.read()
+                with open(f'static/img/file{idi - 1}.jpg', 'wb') as photo:
+                    photo.write(f)
+                product.photo = str.encode(f'static/img/file{idi - 1}.jpg')
+                db_sess.commit()
+                return redirect('/')
+            else:
+                abort(404)
         else:
-            abort(404)
+            db_sess.delete(product)
+            db_sess.commit()
+            os.remove(f'static/img/file{product.id - 1}.jpg')
+            return redirect('/')
     return render_template('product.html',
                            title='Редактирование новости', form=form, delete=True)
 
