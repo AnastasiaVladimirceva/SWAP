@@ -17,22 +17,22 @@
           <div class="d-flex flex-wrap align-items-center justify-content-center">
             <img src="/static/img/logo.png" alt="Упс))">
       
-            <form class="d-flex">
-              <input type="search" class="form-control form-control-dark" placeholder="Search...">
-              <button style="margin-left: 10px;" class="btn btn-success" type="submit">Search</button>
+            <form class="d-flex" method="POST">
+              <input type="search" class="form-control form-control-dark" name='search' placeholder="навзание товара...">
+              <button style="margin-left: 10px;" class="btn btn-success" type="submit">Искать</button>
             </form>
   
             <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
-              <li><a href="/" class="nav-link px-2 text-warning">Home</a></li>
+              <li><a href="/" class="nav-link px-2 text-warning">Домой</a></li>
             </ul>
             {% if current_user.is_authenticated %}
                 <label class="nav-item"><a href="/logout" class="nav-link active" style="background-color: #FF8400; border-radius: 15px;">{{ current_user.name }}</a></label>
-                <a class="btn btn-outline-warning" href="/product_add" role="button">Create new product</a>
-                <a class="nav-link px-2 text-warning" href="/product">My product</a>
+                <a class="btn btn-outline-warning" href="/product_add" role="button">Создать новый товар</a>
+                <a class="nav-link px-2 text-warning" href="/product">Мои товары</a>
             {% else %}
                 <div>
-                    <a class="btn btn-outline-warning" href="/login" role="button">Login</a>
-                    <a class="btn btn-warning" href="/register" role="button">Sign-up</a>
+                    <a class="btn btn-outline-warning" href="/login" role="button">Войти</a>
+                    <a class="btn btn-warning" href="/register" role="button">Зарегистрироваться</a>
                 </div>
             {% endif %}
           </div>
@@ -59,9 +59,9 @@
     <div class="col-6 col-md">
       <h5>About</h5>
       <ul class="list-unstyled text-small">
-        <li class="mb-1"><a class="link-secondary text-decoration-none" style="color: black;" href="#">Team</a></li>
-        <li class="mb-1"><a class="link-secondary text-decoration-none" style="color: black;" href="#">FAQ</a></li>
-        <li class="mb-1"><a class="link-secondary text-decoration-none" style="color: black;" href="#">About this project</a></li>
+        <li class="mb-1"><a class="link-secondary text-decoration-none" style="color: black;" href="/team_about">Team</a></li>
+        <li class="mb-1"><a class="link-secondary text-decoration-none" style="color: black;" href="/faq">FAQ</a></li>
+        <li class="mb-1"><a class="link-secondary text-decoration-none" style="color: black;" href="/about_project">About this project</a></li>
       </ul>
     </div>
   </div>
