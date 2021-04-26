@@ -43,8 +43,12 @@ def start():
         product = db_sess.query(Product).all()
         return render_template('main.html', title='TopSwap', news=product)
     else:
-        product = db_sess.query(Product).filter(Product.title == request.form.get('search').capitalize()).all()
-        return render_template('main.html', title='TopSwap', news=product)
+        product = db_sess.query(Product).all()
+        result = []
+        for i in product:
+            if request.form.get('search').lower() in i.title:
+                result.append(i)
+        return render_template('main.html', title='TopSwap', news=result)
 
 
 @app.route('/help/<type_help>')
@@ -122,7 +126,7 @@ def product_add():
         db_sess = db_session.create_session()
         count = len(db_sess.query(Product).all())
         product = Product()
-        product.title = form.title.data.capitalize()
+        product.title = form.title.data.lower()
         product.content = form.content.data
         product.connection = form.connection.data
         if not form.connection.data.isdigit() and str(form.connection.data) != 11 and not str(form.connection.data).startswith('8'):
@@ -163,7 +167,7 @@ def edit_product(idi):
                                                 Product.user == current_user
                                                 ).first()
         if product:
-            form.title.data = product.title.capitalize()
+            form.title.data = product.title.lower()
             form.content.data = product.content
             form.connection.data = product.connection
             form.category.data = product.category
@@ -177,7 +181,7 @@ def edit_product(idi):
                                                 ).first()
         if form.submit.data:
             if product:
-                product.title = form.title.data.capitalize()
+                product.title = form.title.data.lower()
                 product.content = form.content.data
                 product.connection = form.connection.data
                 if not form.connection.data.isdigit() and str(form.connection.data) != 11 and not str(form.connection.data).startswith('8'):
