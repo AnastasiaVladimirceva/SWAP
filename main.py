@@ -66,7 +66,7 @@ def category(category):
     if request.method == 'GET':
         db_sess = db_session.create_session()
         result = db_sess.query(Product).filter(Product.category == category.replace('%20', ' ')).all()
-        return render_template('main.html', news=result)
+        return render_template('main.html', news=result, title='TopSWwap')
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -130,12 +130,12 @@ def product_add():
         product.content = form.content.data
         product.connection = form.connection.data
         if not form.connection.data.isdigit() and str(form.connection.data) != 11 and not str(form.connection.data).startswith('8'):
-            return render_template('product.html', title='Добавление записи',
+            return render_template('product.html', title='Добавление товара',
                            form=form, message='Неверный формат ввода телефона')
         product.category = request.form['category']
         f = request.files['file']
         if not f.filename.split('.')[1] in ['png', 'jpg', 'bmp', 'ico', 'jpeg', 'gif']:
-            return render_template('product.html', title='Добавление записи',
+            return render_template('product.html', title='Добавление товара',
                            form=form, message='Неверный формат картинки')
         f = f.read()
         with open(f'static/img/file{count}.jpg', 'wb') as photo:
@@ -145,7 +145,7 @@ def product_add():
         db_sess.merge(current_user)
         db_sess.commit()
         return redirect('/')
-    return render_template('product.html', title='Добавление записи',
+    return render_template('product.html', title='Добавление товара',
                            form=form)
 
 
@@ -155,7 +155,7 @@ def product():
     if request.method == 'GET':
         db_sess = db_session.create_session()
         result = db_sess.query(Product).filter(Product.user == current_user)
-        return render_template('index.html', news=result)
+        return render_template('index.html', news=result, title='TopSWwap')
 
 
 @app.route('/product_edit/<int:idi>', methods=['GET', 'POST'])
@@ -185,7 +185,7 @@ def edit_product(idi):
                 product.content = form.content.data
                 product.connection = form.connection.data
                 if not form.connection.data.isdigit() and str(form.connection.data) != 11 and not str(form.connection.data).startswith('8'):
-                    return render_template('product.html', title='Редактирование новости',
+                    return render_template('product.html', title='Редактирование товара',
                                 form=form, message='Неверный формат ввода телефона', delete=True)
                 product.category = request.form['category']
                 f = request.files['file']
@@ -194,7 +194,7 @@ def edit_product(idi):
                     with open(f.decode('utf-8'), mode='rb') as fi:
                         f = fi.read()
                 elif not f.filename.split('.')[1] in ['png', 'jpg', 'bmp', 'ico', 'jpeg', 'gif']:
-                    return render_template('product.html', title='Редактирование новости',
+                    return render_template('product.html', title='Редактирование товара',
                                 form=form, message='Неверный формат картинки', delete=True)
                 else:
                     f = f.read()
@@ -211,7 +211,7 @@ def edit_product(idi):
             os.remove(f'static/img/file{product.id - 1}.jpg')
             return redirect('/')
     return render_template('product.html',
-                           title='Редактирование новости', form=form, delete=True)
+                           title='Редактирование товара', form=form, delete=True)
 
 
 def data_sum(data):
@@ -245,7 +245,7 @@ def product_info(idis):
     data = data_sum(result.created_date)
     style = [('bg-primary', 'text-white'), ('bg-success', 'text-white'), ('bg-warning', 'text-dark')]
     if request.method == 'GET':
-        return render_template('news.html', file=int(idis) - 1, result=result, data=data, style_of_card=choice(style))
+        return render_template('news.html', file=int(idis) - 1, result=result, data=data, style_of_card=choice(style), title='TopSwap')
     else:
         try:
             email = db_sess.query(User).filter(User.id == result.user_id).first().email
@@ -275,14 +275,14 @@ def product_info(idis):
             server.login(addr_from, password)
             server.send_message(msg)
             server.quit()
-            return render_template('news.html', file=int(idis) - 1, result=result, data=data, style_of_card=choice(style), message='Удачно')
+            return render_template('news.html', file=int(idis) - 1, result=result, data=data, style_of_card=choice(style), message='Удачно', title='TopSwap')
         except Exception as e:
             print(e)
-            return render_template('news.html', file=int(idis) - 1, result=result, data=data, style_of_card=choice(style), message='Неудалось отправить сообщение')
+            return render_template('news.html', file=int(idis) - 1, result=result, data=data, style_of_card=choice(style), message='Неудалось отправить сообщение', title='TopSwap')
 
 
 if __name__ == '__main__':
     db_session.global_init("db/blogs.db")
     port = int(os.environ.get("PORT", 5000))
-    app.run(host='127.0.0.1', port=8080, debug=True)
+    app.run(host='127.0.0.1', port=port, debug=True)
     # app.run(host='0.0.0.0', port=port)
